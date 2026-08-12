@@ -1,0 +1,16 @@
+flowchart LR
+    cliente(["Cliente<br/>Pesquisa restaurantes, faz pedidos e acompanha entregas"])
+    restaurante(["Restaurante<br/>Atualiza o cardápio e prepara pedidos"])
+    entregador(["Entregador<br/>Retira e entrega os pedidos"])
+
+    delivery["Sistema de Delivery<br/>Gerencia cardápios, pedidos, pagamentos e entregas"]
+    pagamento["Gateway de Pagamento<br/>Processa pagamentos"]
+    mapas["Serviço de Mapas<br/>Fornece localização e rotas"]
+
+    cliente -->|Faz e acompanha pedidos| delivery
+    restaurante -->|Atualiza o cardápio e o status dos pedidos| delivery
+    entregador -->|Consulta e atualiza entregas| delivery
+    delivery -->|Solicita cobranças e estornos| pagamento
+    pagamento -->|Retorna o resultado do pagamento| delivery
+    delivery -->|Consulta localizações e rotas| mapas
+    mapas -->|Retorna mapas e rotas| delivery
