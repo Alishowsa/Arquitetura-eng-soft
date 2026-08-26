@@ -1,0 +1,26 @@
+flowchart LR
+    cliente(["Cliente"])
+    restaurante(["Restaurante"])
+    entregador(["Entregador"])
+    pagamento["Gateway de Pagamento<br/>Processa pagamentos"]
+    mapas["Serviço de Mapas<br/>Fornece localização e rotas"]
+
+    subgraph sistemaDelivery["Sistema de Delivery"]
+        appCliente["Aplicativo do Cliente<br/>Permite pesquisar restaurantes, fazer pedidos e acompanhar entregas"]
+        portalRestaurante["Portal do Restaurante<br/>Permite gerenciar o cardápio e os pedidos"]
+        appEntregador["Aplicativo do Entregador<br/>Permite aceitar entregas e atualizar sua localização"]
+        api["API Backend<br/>Executa as regras de negócio e integra os serviços"]
+        banco[("Banco de Dados<br/>Armazena usuários, restaurantes, produtos, pedidos e entregas")]
+    end
+
+    cliente -->|Utiliza| appCliente
+    restaurante -->|Utiliza| portalRestaurante
+    entregador -->|Utiliza| appEntregador
+    appCliente -->|HTTPS/JSON| api
+    portalRestaurante -->|HTTPS/JSON| api
+    appEntregador -->|HTTPS/JSON| api
+    api -->|Lê e grava dados| banco
+    api -->|Solicita cobranças e estornos| pagamento
+    pagamento -->|Retorna o resultado do pagamento| api
+    api -->|Consulta localizações e rotas| mapas
+    mapas -->|Retorna mapas e rotas| api

@@ -1,0 +1,41 @@
+classDiagram
+    class PedidoController {
+        +criarPedido(dados)
+        +consultarPedido(id)
+        +atualizarStatus(id, status)
+    }
+
+    class PedidoService {
+        +criarPedido(dados)
+        +calcularTotal(itens)
+        +atualizarStatus(id, status)
+    }
+
+    class PedidoRepository {
+        +salvar(pedido)
+        +buscarPorId(id)
+        +atualizar(pedido)
+    }
+
+    class PagamentoService {
+        +processarPagamento(pedido)
+    }
+
+    class EntregaService {
+        +solicitarEntregador(pedido)
+    }
+
+    class Pedido {
+        +UUID id
+        +StatusPedido status
+        +Decimal valorTotal
+        +adicionarItem(item)
+        +alterarStatus(status)
+    }
+
+    PedidoController --> PedidoService : utiliza
+    PedidoService --> PedidoRepository : persiste
+    PedidoService --> PagamentoService : solicita pagamento
+    PedidoService --> EntregaService : solicita entrega
+    PedidoService --> Pedido : cria e atualiza
+    PedidoRepository --> Pedido : armazena
