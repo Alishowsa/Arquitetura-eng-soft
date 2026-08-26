@@ -1,0 +1,11 @@
+flowchart LR
+    usuario(["Usuário<br/>Pesquisa, reserva e consulta empréstimos"])
+    bibliotecario(["Bibliotecário<br/>Cadastra livros e gerencia empréstimos"])
+
+    sistema["Sistema da Biblioteca<br/>Gerencia o catálogo, as reservas e os empréstimos"]
+    email["Serviço de E-mail<br/>Envia avisos e lembretes"]
+
+    usuario -->|Pesquisa livros, faz reservas e consulta empréstimos| sistema
+    bibliotecario -->|Cadastra livros e gerencia empréstimos| sistema
+    sistema -->|Envia solicitações de notificação| email
+    email -->|Entrega avisos e lembretes| usuario

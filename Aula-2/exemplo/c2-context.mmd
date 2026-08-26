@@ -1,0 +1,19 @@
+flowchart LR
+    usuario(["Usuário"])
+    bibliotecario(["Bibliotecário"])
+    email["Serviço de E-mail<br/>Envia avisos e lembretes"]
+
+    subgraph sistemaBiblioteca["Sistema da Biblioteca"]
+        app["Aplicativo do Usuário<br/>Permite pesquisar, reservar e consultar empréstimos"]
+        backoffice["Portal do Bibliotecário<br/>Permite cadastrar livros e gerenciar empréstimos"]
+        api["API Backend<br/>Executa as regras de negócio do sistema"]
+        banco[("Banco de Dados<br/>Armazena usuários, livros, reservas e empréstimos")]
+    end
+
+    usuario -->|Utiliza| app
+    bibliotecario -->|Utiliza| backoffice
+    app -->|HTTPS/JSON| api
+    backoffice -->|HTTPS/JSON| api
+    api -->|Lê e grava dados| banco
+    api -->|Solicita o envio de notificações| email
+    email -->|Entrega avisos e lembretes| usuario
