@@ -1,0 +1,8 @@
+flowchart LR
+    vendedor(["Vendedor<br/>Registra pedidos recebidos por telefone ou presencialmente"])
+    administrador(["Administrador<br/>Cadastra e remove produtos da venda"])
+    estoque(["Equipe de estoque<br/>Consulta saldo e registra entradas e saídas"])
+    sistema["Sistema de Vendas e Estoque<br/>Gerencia produtos, pedidos e movimentações de estoque"]
+    vendedor -->|Consulta produtos e registra pedidos| sistema
+    administrador -->|Cadastra e retira produtos de venda| sistema
+    estoque -->|Consulta quantidades e registra movimentações| sistema

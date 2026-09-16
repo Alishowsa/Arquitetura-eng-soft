@@ -1,0 +1,14 @@
+flowchart LR
+    vendedor(["Vendedor"])
+    administrador(["Administrador"])
+    estoque(["Equipe de estoque"])
+    subgraph sistema["Sistema de Vendas e Estoque"]
+        web["Aplicação Web<br/>HTML, CSS e JavaScript<br/>Telas de pedidos, produtos e estoque conforme o perfil"]
+        api["API de Vendas e Estoque<br/>Java / Spring Boot<br/>Autoriza operações, valida pedidos e controla movimentações"]
+        banco[("Banco de Dados<br/>PostgreSQL<br/>Usuários, produtos, pedidos, itens e movimentações")]
+    end
+    vendedor -->|Registra pedidos| web
+    administrador -->|Gerencia produtos| web
+    estoque -->|Registra entradas e saídas| web
+    web -->|HTTPS / JSON| api
+    api -->|SQL / JDBC: consulta e persiste| banco

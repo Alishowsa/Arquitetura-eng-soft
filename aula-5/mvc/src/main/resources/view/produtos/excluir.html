@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Excluir produto</title><link rel="stylesheet" th:href="@{/style.css}"></head>
+<body><main><h1>Excluir produto</h1><section><p>Deseja excluir <strong th:text="${produto.nome}"></strong>?</p><p>O produto será removido do cadastro.</p>
+<form method="post" th:action="@{/produtos/{id}/excluir(id=${produto.id})}"><button class="excluir" type="submit">Confirmar exclusão</button><a th:href="@{/produtos}">Cancelar</a></form>
+</section></main></body></html>
