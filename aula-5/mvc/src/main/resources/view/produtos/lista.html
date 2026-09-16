@@ -1,19 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Produtos • Cadastro MVC</title><link rel="stylesheet" th:href="@{/style.css}"></head>
-<body>
-<header><p>ARQUITETURA DE SOFTWARE · AULA 5</p><h1>Cadastro de produtos</h1><p>Consulte os produtos, preços e quantidades cadastrados.</p></header>
-<main>
-<p class="sucesso" role="status" th:if="${mensagem}" th:text="${mensagem}"></p>
-<p><a class="botao" th:href="@{/produtos/novo}">Cadastrar produto</a></p>
-<section><h2>Produtos cadastrados</h2>
-<p th:if="${#lists.isEmpty(produtos)}">Nenhum produto cadastrado. Use “Cadastrar produto” para começar.</p>
-<div class="tabela" th:unless="${#lists.isEmpty(produtos)}"><table>
-<thead><tr><th scope="col">Nome</th><th scope="col">Descrição</th><th scope="col">Preço</th><th scope="col">Quantidade</th><th scope="col">Ações</th></tr></thead>
-<tbody><tr th:each="produto : ${produtos}">
-<td th:text="${produto.nome}"></td><td th:text="${produto.descricao}"></td>
-<td class="preco" th:text="|R$ ${#numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA')}|"></td><td th:text="${produto.quantidade}"></td>
-<td><a th:href="@{/produtos/{id}/editar(id=${produto.id})}" th:aria-label="|Editar ${produto.nome}|">Editar</a> · <a class="perigo" th:href="@{/produtos/{id}/excluir(id=${produto.id})}" th:aria-label="|Excluir ${produto.nome}|">Excluir</a></td>
-</tr></tbody></table></div></section>
-</main><footer>Cadastro de produtos · Spring MVC</footer>
-</body></html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Produtos • Cadastro MVC</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header>
+      <p>ARQUITETURA DE SOFTWARE · AULA 5</p>
+      <h1>Cadastro de produtos</h1>
+      <p>Consulte os produtos, preços e quantidades cadastrados.</p>
+    </header>
+    <main>
+      <p
+        class="sucesso"
+        role="status"
+        th:if="${mensagem}"
+        th:text="${mensagem}"
+      ></p>
+      <p><a class="botao" th:href="@{/produtos/novo}">Cadastrar produto</a></p>
+      <section>
+        <h2>Produtos cadastrados</h2>
+        <p th:if="${#lists.isEmpty(produtos)}">
+          Nenhum produto cadastrado. Use “Cadastrar produto” para começar.
+        </p>
+        <div class="tabela" th:unless="${#lists.isEmpty(produtos)}">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Preço</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="produto : ${produtos}">
+                <td th:text="${produto.nome}"></td>
+                <td th:text="${produto.descricao}"></td>
+                <td
+                  class="preco"
+                  th:text="|R$ ${#numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA')}|"
+                ></td>
+                <td th:text="${produto.quantidade}"></td>
+                <td>
+                  <a
+                    th:href="@{/produtos/{id}/editar(id=${produto.id})}"
+                    th:aria-label="|Editar ${produto.nome}|"
+                    >Editar</a
+                  >
+                  ·
+                  <a
+                    class="perigo"
+                    th:href="@{/produtos/{id}/excluir(id=${produto.id})}"
+                    th:aria-label="|Excluir ${produto.nome}|"
+                    >Excluir</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <footer>Cadastro de produtos · Spring MVC</footer>
+  </body>
+</html>

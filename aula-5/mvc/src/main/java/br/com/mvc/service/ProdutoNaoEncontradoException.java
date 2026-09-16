@@ -1,5 +1,8 @@
 package br.com.mvc.service;
 
 public class ProdutoNaoEncontradoException extends RuntimeException {
-    public ProdutoNaoEncontradoException() { super("Produto não encontrado."); }
+
+    public ProdutoNaoEncontradoException() {
+        super("Produto não encontrado.");
+    }
 }
