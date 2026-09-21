@@ -2,7 +2,6 @@ package br.com.mvc.dto;
 
 import java.math.BigDecimal;
 
-// Objeto exclusivo da entrada do formulário: o usuário não fornece o ID da entidade.
 public class ProdutoForm {
 
     private String nome;
