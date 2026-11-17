@@ -38,15 +38,15 @@ O banco fica em `aula-5/mvc/data/` quando executado como acima e não é version
 
 ## Organização por camada — package by layer
 
-| Pasta | Papel |
-| --- | --- |
-| `controller` | Recebe requisições, trata erros de formato e seleciona as views. |
-| `dto` | Transporta os dados digitados no formulário sem expor o ID da entidade à vinculação de campos. |
-| `service` | Aplica regras de negócio e delimita transações. |
-| `repository` | Acessa a persistência com Spring Data JPA. |
-| `model` | Representa a entidade Produto. |
-| `resources/view` | Telas Thymeleaf: lista, formulário, confirmação de exclusão e erro. |
-| `resources/static` | CSS utilizado pelas telas. |
+| Pasta              | Papel                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| `controller`       | Recebe requisições, trata erros de formato e seleciona as views.                               |
+| `dto`              | Transporta os dados digitados no formulário sem expor o ID da entidade à vinculação de campos. |
+| `service`          | Aplica regras de negócio e delimita transações.                                                |
+| `repository`       | Acessa a persistência com Spring Data JPA.                                                     |
+| `model`            | Representa a entidade Produto.                                                                 |
+| `resources/view`   | Telas Thymeleaf: lista, formulário, confirmação de exclusão e erro.                            |
+| `resources/static` | CSS utilizado pelas telas.                                                                     |
 
 View e Controller compõem a apresentação; Service concentra o domínio; Repository realiza o acesso aos dados. A entidade representa os dados do produto. A configuração `spring.thymeleaf.prefix=classpath:/view/` do projeto original foi mantida.
 
