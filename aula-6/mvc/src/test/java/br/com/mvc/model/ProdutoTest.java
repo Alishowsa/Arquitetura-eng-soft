@@ -9,41 +9,44 @@ import org.junit.jupiter.api.Test;
 
 class ProdutoTest {
 
-    private static Produto produto(int estoqueInicial) {
-        return Produto.cadastrar(
+    private static Produto produto(int estoque) {
+        Produto produto = Produto.cadastrar(
             "Caderno",
             "80 folhas",
-            new BigDecimal("19.90"),
-            estoqueInicial
+            new BigDecimal("19.90")
         );
+        if (estoque > 0) {
+            produto.acrescerEstoque(estoque);
+        }
+        return produto;
     }
 
     @Test
-    void nasceAtivoComEstoqueEEsgotadoSemEstoque() {
-        assertThat(produto(5).getStatus()).isEqualTo(StatusProduto.ATIVO);
-        assertThat(produto(0).getStatus()).isEqualTo(StatusProduto.ESGOTADO);
+    void nasceIndisponivelComEstoqueZero() {
+        Produto novo = produto(0);
+
+        assertThat(novo.getStatus()).isEqualTo(StatusProduto.INDISPONIVEL);
+        assertThat(novo.getQuantidade()).isZero();
     }
 
     @Test
-    void baixarAteZeroEsgota() {
+    void baixarAteZeroDeixaIndisponivel() {
         Produto p = produto(3);
 
         assertThat(p.baixarEstoque(1)).isEqualTo(Transicao.NENHUMA);
-        assertThat(p.getStatus()).isEqualTo(StatusProduto.ATIVO);
+        assertThat(p.getStatus()).isEqualTo(StatusProduto.DISPONIVEL);
 
-        assertThat(p.baixarEstoque(2)).isEqualTo(Transicao.ESGOTOU);
+        assertThat(p.baixarEstoque(2)).isEqualTo(Transicao.FICOU_INDISPONIVEL);
         assertThat(p.getQuantidade()).isZero();
-        assertThat(p.getStatus()).isEqualTo(StatusProduto.ESGOTADO);
+        assertThat(p.getStatus()).isEqualTo(StatusProduto.INDISPONIVEL);
     }
 
     @Test
-    void acrescerEmProdutoEsgotadoReativa() {
+    void acrescerEmProdutoIndisponivelDeixaDisponivel() {
         Produto p = produto(0);
 
-        assertThat(p.acrescerEstoque(10)).isEqualTo(
-            Transicao.VOLTOU_AO_ESTOQUE
-        );
-        assertThat(p.getStatus()).isEqualTo(StatusProduto.ATIVO);
+        assertThat(p.acrescerEstoque(10)).isEqualTo(Transicao.FICOU_DISPONIVEL);
+        assertThat(p.getStatus()).isEqualTo(StatusProduto.DISPONIVEL);
         assertThat(p.acrescerEstoque(1)).isEqualTo(Transicao.NENHUMA);
         assertThat(p.getQuantidade()).isEqualTo(11);
     }
@@ -71,24 +74,28 @@ class ProdutoTest {
     }
 
     @Test
-    void descontinuarVaiDeAtivoOuEsgotadoEEhFinal() {
-        Produto ativo = produto(4);
-        Produto esgotado = produto(0);
+    void descontinuarVaiDeDisponivelOuIndisponivelEEhFinal() {
+        Produto disponivel = produto(4);
+        Produto indisponivel = produto(0);
 
-        ativo.descontinuar();
-        esgotado.descontinuar();
+        disponivel.descontinuar();
+        indisponivel.descontinuar();
 
-        assertThat(ativo.getStatus()).isEqualTo(StatusProduto.DESCONTINUADO);
-        assertThat(esgotado.getStatus()).isEqualTo(StatusProduto.DESCONTINUADO);
-        assertThatThrownBy(ativo::descontinuar).hasMessageContaining(
+        assertThat(disponivel.getStatus()).isEqualTo(
+            StatusProduto.DESCONTINUADO
+        );
+        assertThat(indisponivel.getStatus()).isEqualTo(
+            StatusProduto.DESCONTINUADO
+        );
+        assertThatThrownBy(disponivel::descontinuar).hasMessageContaining(
             "já está descontinuado"
         );
-        assertThatThrownBy(() -> ativo.acrescerEstoque(1)).hasMessageContaining(
-            "descontinuado"
-        );
-        assertThatThrownBy(() -> ativo.baixarEstoque(1)).hasMessageContaining(
-            "descontinuado"
-        );
+        assertThatThrownBy(() ->
+            disponivel.acrescerEstoque(1)
+        ).hasMessageContaining("descontinuado");
+        assertThatThrownBy(() ->
+            disponivel.baixarEstoque(1)
+        ).hasMessageContaining("descontinuado");
     }
 
     @Test

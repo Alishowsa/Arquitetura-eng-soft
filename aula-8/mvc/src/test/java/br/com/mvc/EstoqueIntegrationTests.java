@@ -59,21 +59,24 @@ class EstoqueIntegrationTests {
         return sessao;
     }
 
-    private Long cadastrar(String nome, int estoqueInicial) throws Exception {
+    private Long cadastrar(String nome, int estoque) throws Exception {
         mvc.perform(
             post("/produtos")
                 .session(sessao(Perfil.ADMINISTRADOR))
                 .param("nome", nome)
                 .param("preco", "10.00")
-                .param("quantidade", String.valueOf(estoqueInicial))
         ).andExpect(redirectedUrl("/produtos"));
-        return produtos
+        Long id = produtos
             .findAll()
             .stream()
             .filter(p -> p.getNome().equals(nome))
             .findFirst()
             .orElseThrow()
             .getId();
+        if (estoque > 0) {
+            movimentar(id, TipoMovimentacao.ENTRADA, estoque, Perfil.ESTOQUE);
+        }
+        return id;
     }
 
     private void movimentar(
@@ -93,23 +96,23 @@ class EstoqueIntegrationTests {
     }
 
     @Test
-    void cicloCompletoAtivoEsgotadoAtivoDescontinuado() throws Exception {
+    void cicloCompletoIndisponivelDisponivelIndisponivelDescontinuado() throws Exception {
         Long id = cadastrar("Caneta azul", 0);
         assertThat(produtos.findById(id).orElseThrow().getStatus()).isEqualTo(
-            StatusProduto.ESGOTADO
+            StatusProduto.INDISPONIVEL
         );
 
         movimentar(id, TipoMovimentacao.ENTRADA, 10, Perfil.ESTOQUE);
         Produto p = produtos.findById(id).orElseThrow();
         assertThat(p.getQuantidade()).isEqualTo(10);
-        assertThat(p.getStatus()).isEqualTo(StatusProduto.ATIVO);
+        assertThat(p.getStatus()).isEqualTo(StatusProduto.DISPONIVEL);
 
         movimentar(id, TipoMovimentacao.SAIDA, 10, Perfil.ESTOQUE);
         assertThat(produtos.findById(id).orElseThrow().getStatus()).isEqualTo(
-            StatusProduto.ESGOTADO
+            StatusProduto.INDISPONIVEL
         );
         assertThat(avisos.recentes()).anyMatch(a ->
-            a.contains("Caneta azul esgotou")
+            a.contains("Caneta azul ficou indisponível")
         );
 
         mvc.perform(
@@ -156,7 +159,7 @@ class EstoqueIntegrationTests {
         assertThat(
             produtos.findById(id).orElseThrow().getQuantidade()
         ).isEqualTo(2);
-        assertThat(movimentacoes.count()).isZero();
+        assertThat(movimentacoes.count()).isEqualTo(1);
     }
 
     @Test
@@ -192,7 +195,7 @@ class EstoqueIntegrationTests {
                     .param("quantidade", qtd)
             ).andExpect(flash().attributeExists("erro"));
         }
-        assertThat(movimentacoes.count()).isZero();
+        assertThat(movimentacoes.count()).isEqualTo(1);
     }
 
     @Test
@@ -222,7 +225,7 @@ class EstoqueIntegrationTests {
         );
 
         assertThat(produtos.findById(id).orElseThrow().getStatus()).isEqualTo(
-            StatusProduto.ATIVO
+            StatusProduto.DISPONIVEL
         );
         mvc.perform(get("/produtos").session(vendedor))
             .andExpect(status().isOk())
@@ -250,7 +253,7 @@ class EstoqueIntegrationTests {
 
     @Test
     void produtoComHistoricoNaoPodeSerExcluidoSoDescontinuado() throws Exception {
-        Long semHistorico = cadastrar("Clips", 1);
+        Long semHistorico = cadastrar("Clips", 0);
         Long comHistorico = cadastrar("Grampo", 1);
         movimentar(
             comHistorico,
@@ -300,6 +303,22 @@ class EstoqueIntegrationTests {
         )
             .andExpect(status().isOk())
             .andExpect(model().hasErrors());
+    }
+
+    @Test
+    void produtoNovoNasceIndisponivelComEstoqueZero() throws Exception {
+        mvc.perform(
+            post("/produtos")
+                .session(sessao(Perfil.ADMINISTRADOR))
+                .param("nome", "Estojo")
+                .param("preco", "15.00")
+                .param("quantidade", "50")
+        ).andExpect(redirectedUrl("/produtos"));
+
+        Produto p = produtos.findAll().getFirst();
+        assertThat(p.getStatus()).isEqualTo(StatusProduto.INDISPONIVEL);
+        assertThat(p.getQuantidade()).isZero();
+        assertThat(movimentacoes.count()).isZero();
     }
 
     @Test

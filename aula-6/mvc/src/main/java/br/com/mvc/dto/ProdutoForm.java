@@ -7,7 +7,6 @@ public class ProdutoForm {
     private String nome;
     private String descricao;
     private BigDecimal preco;
-    private Integer quantidade;
 
     public String getNome() {
         return nome;
@@ -31,13 +30,5 @@ public class ProdutoForm {
 
     public void setPreco(BigDecimal preco) {
         this.preco = preco;
-    }
-
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
     }
 }

@@ -37,19 +37,12 @@ public class Produto {
     public static Produto cadastrar(
         String nome,
         String descricao,
-        BigDecimal preco,
-        int estoqueInicial
+        BigDecimal preco
     ) {
-        if (estoqueInicial < 0) {
-            throw new RegraDeNegocioException(
-                "O estoque inicial não pode ser negativo."
-            );
-        }
         Produto produto = new Produto();
         produto.alterarDados(nome, descricao, preco);
-        produto.quantidade = estoqueInicial;
-        produto.status =
-            estoqueInicial > 0 ? StatusProduto.ATIVO : StatusProduto.ESGOTADO;
+        produto.quantidade = 0;
+        produto.status = StatusProduto.INDISPONIVEL;
         return produto;
     }
 
@@ -61,11 +54,11 @@ public class Produto {
 
     public Transicao acrescerEstoque(int unidades) {
         exigirMovimentavel(unidades);
-        boolean estavaEsgotado = status == StatusProduto.ESGOTADO;
+        boolean estavaIndisponivel = status == StatusProduto.INDISPONIVEL;
         quantidade += unidades;
-        if (estavaEsgotado) {
-            status = StatusProduto.ATIVO;
-            return Transicao.VOLTOU_AO_ESTOQUE;
+        if (estavaIndisponivel) {
+            status = StatusProduto.DISPONIVEL;
+            return Transicao.FICOU_DISPONIVEL;
         }
         return Transicao.NENHUMA;
     }
@@ -85,8 +78,8 @@ public class Produto {
         }
         quantidade -= unidades;
         if (quantidade == 0) {
-            status = StatusProduto.ESGOTADO;
-            return Transicao.ESGOTOU;
+            status = StatusProduto.INDISPONIVEL;
+            return Transicao.FICOU_INDISPONIVEL;
         }
         return Transicao.NENHUMA;
     }
@@ -117,8 +110,8 @@ public class Produto {
 
     public enum Transicao {
         NENHUMA,
-        ESGOTOU,
-        VOLTOU_AO_ESTOQUE,
+        FICOU_INDISPONIVEL,
+        FICOU_DISPONIVEL,
     }
 
     public Long getId() {

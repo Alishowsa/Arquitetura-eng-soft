@@ -23,14 +23,17 @@ public class AvisosAosVendedores {
 
     private final Deque<String> recentes = new ArrayDeque<>();
 
-    public void produtoEsgotou(Produto produto) {
-        registrar(produto.getNome() + " esgotou. Não ofereça até a reposição.");
-    }
-
-    public void produtoVoltouAoEstoque(Produto produto) {
+    public void produtoFicouIndisponivel(Produto produto) {
         registrar(
             produto.getNome() +
-                " voltou ao estoque (" +
+                " ficou indisponível (estoque zerado). Não ofereça até a reposição."
+        );
+    }
+
+    public void produtoFicouDisponivel(Produto produto) {
+        registrar(
+            produto.getNome() +
+                " está disponível (" +
                 produto.getQuantidade() +
                 " un.)."
         );

@@ -2,7 +2,7 @@
 
 **Pergunta:** quem chama quem, e em que ordem, quando o Time de Estoque registra a chegada de mercadoria?
 
-Caso escolhido: o produto estava **ESGOTADO** e volta a ter saldo. É o caso que mais mostra colaboração, porque além de gravar a movimentação o sistema avisa os vendedores (`attVendedores()` no diagrama de estados).
+Caso escolhido: o produto estava **INDISPONIVEL** (saldo 0, como todo produto recém-cadastrado) e passa a ter saldo. É o caso que mais mostra colaboração, porque além de gravar a movimentação o sistema avisa os vendedores (`attVendedores()` no diagrama de estados).
 
 ```mermaid
 sequenceDiagram
@@ -19,15 +19,15 @@ sequenceDiagram
     EC->>+ES: registrarEntrada(8, 10, "NF 1234", ESTOQUE)
     ES->>ES: perfil pode movimentar?
     ES->>+PR: findById(8)
-    PR-->>-ES: Produto (ESGOTADO, saldo 0)
+    PR-->>-ES: Produto (INDISPONIVEL, saldo 0)
     ES->>+P: acrescerEstoque(10)
-    P->>P: saldo 0 → 10, status ESGOTADO → ATIVO
-    P-->>-ES: VOLTOU_AO_ESTOQUE
+    P->>P: saldo 0 → 10, status INDISPONIVEL → DISPONIVEL
+    P-->>-ES: FICOU_DISPONIVEL
     ES->>+MR: save(Movimentacao ENTRADA, saldoApós 10)
     MR-->>-ES: Movimentacao
-    ES->>AV: produtoVoltouAoEstoque(produto)
+    ES->>AV: produtoFicouDisponivel(produto)
     ES-->>-EC: Movimentacao
-    EC-->>-TE: redirect /estoque + "Entrada de 10 un. registrada. Saldo: 10 (Ativo)."
+    EC-->>-TE: redirect /estoque + "Entrada de 10 un. registrada. Saldo: 10 (Disponível)."
 ```
 
 ## Leitura

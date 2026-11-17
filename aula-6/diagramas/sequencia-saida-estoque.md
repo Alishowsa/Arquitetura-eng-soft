@@ -2,7 +2,7 @@
 
 **Pergunta:** quem chama quem quando o Time de Estoque dá baixa em mercadoria (venda no balcão, avaria, devolução ao fornecedor)?
 
-Aqui aparecem os dois desfechos que importam: a saída que **zera o saldo** (o produto esgota e os vendedores são avisados) e a saída **maior que o saldo** (recusada sem gravar nada).
+Aqui aparecem os dois desfechos que importam: a saída que **zera o saldo** (o produto fica indisponível e os vendedores são avisados) e a saída **maior que o saldo** (recusada sem gravar nada).
 
 ```mermaid
 sequenceDiagram
@@ -18,17 +18,17 @@ sequenceDiagram
     TE->>+EC: POST /estoque (produto 8, SAIDA, qtd)
     EC->>+ES: registrarSaida(8, qtd, motivo, ESTOQUE)
     ES->>+PR: findById(8)
-    PR-->>-ES: Produto (ATIVO, saldo 3)
+    PR-->>-ES: Produto (DISPONIVEL, saldo 3)
     ES->>+P: baixarEstoque(qtd)
 
     alt qtd = 3 (zera o saldo)
-        P->>P: saldo 3 → 0, status ATIVO → ESGOTADO
-        P-->>ES: ESGOTOU
+        P->>P: saldo 3 → 0, status DISPONIVEL → INDISPONIVEL
+        P-->>ES: FICOU_INDISPONIVEL
         ES->>+MR: save(Movimentacao SAIDA, saldoApós 0)
         MR-->>-ES: Movimentacao
-        ES->>AV: produtoEsgotou(produto)
+        ES->>AV: produtoFicouIndisponivel(produto)
         ES-->>EC: Movimentacao
-        EC-->>TE: redirect /estoque + "Saída de 3 un. ... Saldo: 0 (Esgotado)."
+        EC-->>TE: redirect /estoque + "Saída de 3 un. ... Saldo: 0 (Indisponível)."
     else qtd = 5 (maior que o saldo)
         P-->>-ES: RegraDeNegocioException "Estoque insuficiente"
         ES-->>-EC: RegraDeNegocioException (transação desfeita)

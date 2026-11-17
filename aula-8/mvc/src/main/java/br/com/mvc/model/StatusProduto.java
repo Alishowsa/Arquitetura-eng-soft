@@ -1,8 +1,8 @@
 package br.com.mvc.model;
 
 public enum StatusProduto {
-    ATIVO("Ativo"),
-    ESGOTADO("Esgotado"),
+    DISPONIVEL("Disponível"),
+    INDISPONIVEL("Indisponível"),
     DESCONTINUADO("Descontinuado");
 
     private final String rotulo;

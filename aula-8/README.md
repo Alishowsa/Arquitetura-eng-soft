@@ -50,7 +50,7 @@ sequenceDiagram
 | `service/FechamentoDePedido`                     | **Orquestra**: fecha localmente e **só depois do commit** chama o hub. Não é `@Transactional` de propósito                                                                   |
 | `integracao/ClienteDoHub` + `ClienteRestDoHub`   | Contrato e cliente REST (`RestClient`) com **timeout** de conexão e de leitura (`hub.timeout-ms`)                                                                            |
 | `controller/PedidoController` + `view/pedidos/*` | Telas: abrir pedido, adicionar itens, fechar, ver a fatura e **Reenviar ao hub**                                                                                             |
-| `service/EstoqueService.baixarPorVenda`          | A venda gera uma movimentação de saída "Pedido de venda #N", e o produto pode esgotar (Aula 6)                                                                               |
+| `service/EstoqueService.baixarPorVenda`          | A venda gera uma movimentação de saída "Pedido de venda #N", e o produto pode ficar indisponível (Aula 6)                                                                    |
 
 ### Contrato com o hub
 
@@ -82,10 +82,10 @@ Os problemas que essas decisões **ainda não resolvem**, e as soluções (circu
 
 ```powershell
 cd aula-8/mvc
-.\mvnw.cmd test     # 26 testes
+.\mvnw.cmd test     # 27 testes
 ```
 
-`IntegracaoComHubTests` sobe um **hub falso HTTP** dentro do teste e cobre: o caminho feliz (com o JSON enviado conferido), o hub derrubando a conexão e o reenvio, o hub lento (timeout de 500 ms), o hub recusando com 422, a falta de estoque (nada é baixado nem enviado), o esgotamento do produto e o fluxo pelas telas com perfis. Os testes da Aula 6 (`EstoqueIntegrationTests`, `ProdutoTest`) continuam passando.
+`IntegracaoComHubTests` sobe um **hub falso HTTP** dentro do teste e cobre: o caminho feliz (com o JSON enviado conferido), o hub derrubando a conexão e o reenvio, o hub lento (timeout de 500 ms), o hub recusando com 422, a falta de estoque (nada é baixado nem enviado), o produto ficando indisponível na última unidade e o fluxo pelas telas com perfis. Os testes da Aula 6 (`EstoqueIntegrationTests`, `ProdutoTest`) continuam passando.
 
 ## Executar os dois sistemas
 

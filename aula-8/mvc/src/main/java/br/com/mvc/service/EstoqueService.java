@@ -132,8 +132,8 @@ public class EstoqueService {
         );
 
         switch (transicao) {
-            case ESGOTOU -> avisos.produtoEsgotou(produto);
-            case VOLTOU_AO_ESTOQUE -> avisos.produtoVoltouAoEstoque(produto);
+            case FICOU_INDISPONIVEL -> avisos.produtoFicouIndisponivel(produto);
+            case FICOU_DISPONIVEL -> avisos.produtoFicouDisponivel(produto);
             case NENHUMA -> {
             }
         }

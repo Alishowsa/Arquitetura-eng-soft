@@ -20,9 +20,9 @@ flowchart TD
     d5 -- "[sim]" --> baixa[Baixa o saldo]
     baixa --> grava[Registra a movimentação<br/>com o saldo após]
     grava --> d6{Saldo chegou a zero?}
-    d6 -- "[sim]" --> esgota[Marca ESGOTADO e<br/>avisa os vendedores]
+    d6 -- "[sim]" --> zera[Marca INDISPONIVEL e<br/>avisa os vendedores]
     d6 -- "[não]" --> ok[Mostra o novo saldo]
-    esgota --> ok
+    zera --> ok
     ok --> fim((("&nbsp;")))
     r1 --> fim
     r2 --> fim

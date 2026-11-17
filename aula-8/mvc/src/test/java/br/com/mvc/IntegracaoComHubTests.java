@@ -93,9 +93,9 @@ class IntegracaoComHubTests {
     }
 
     private Produto produto(String nome, int estoque) {
-        return produtos.save(
-            Produto.cadastrar(nome, "", new BigDecimal("12.50"), estoque)
-        );
+        Produto produto = Produto.cadastrar(nome, "", new BigDecimal("12.50"));
+        produto.acrescerEstoque(estoque);
+        return produtos.save(produto);
     }
 
     private Pedido pedidoCom(Produto produto, int quantidade) {
@@ -233,13 +233,13 @@ class IntegracaoComHubTests {
     }
 
     @Test
-    void ultimaUnidadeVendidaEsgotaOProduto() {
+    void ultimaUnidadeVendidaDeixaOProdutoIndisponivel() {
         Produto mochila = produto("Mochila", 1);
         fechamento.fechar(pedidoCom(mochila, 1).getId(), Perfil.VENDEDOR);
 
         assertThat(
             produtos.findById(mochila.getId()).orElseThrow().getStatus()
-        ).isEqualTo(StatusProduto.ESGOTADO);
+        ).isEqualTo(StatusProduto.INDISPONIVEL);
     }
 
     @Test

@@ -103,7 +103,7 @@ public class Pedido {
                 "A quantidade do item deve ser maior que zero."
             );
         }
-        if (produto.getStatus() != StatusProduto.ATIVO) {
+        if (produto.getStatus() != StatusProduto.DISPONIVEL) {
             throw new RegraDeNegocioException(
                 produto.getNome() +
                     " está " +

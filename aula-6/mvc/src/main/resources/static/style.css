@@ -206,11 +206,11 @@ select {
   font-size: 0.85rem;
   font-weight: bold;
 }
-.status.ativo {
+.status.disponivel {
   background: #dcfce7;
   color: #14532d;
 }
-.status.esgotado {
+.status.indisponivel {
   background: #fef3c7;
   color: #78350f;
 }

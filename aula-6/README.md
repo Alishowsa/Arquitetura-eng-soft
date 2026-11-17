@@ -1,6 +1,6 @@
 # Aula 6 — Estruturas dinâmicas: status do produto e controle de estoque
 
-Evolução do MVC da [Aula 5](../aula-5/README.md) com o que o diagrama de contexto da aula pede: o **Administrador cadastra produtos**, o **Time de Estoque controla o estoque** e o **Vendedor** consulta. O produto ganha o ciclo de vida do slide "Status do Product" (`ATIVO ⇄ ESGOTADO → DESCONTINUADO`).
+Evolução do MVC da [Aula 5](../aula-5/README.md) com o que o diagrama de contexto da aula pede: o **Administrador cadastra produtos**, o **Time de Estoque controla o estoque** e o **Vendedor** consulta. O produto ganha um ciclo de vida com status (`INDISPONIVEL ⇄ DISPONIVEL → DESCONTINUADO`), como no slide "Status do Product": todo produto nasce indisponível, com estoque 0.
 
 Junto com o código vão os **diagramas dinâmicos** desses fluxos: sequência, atividades e estados.
 
@@ -18,10 +18,10 @@ Junto com o código vão os **diagramas dinâmicos** desses fluxos: sequência, 
 
 | Regra                                                                                  | Onde fica                                              |
 | -------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Produto tem status `ATIVO`, `ESGOTADO` ou `DESCONTINUADO`                              | `model/StatusProduto`                                  |
-| Nasce `ATIVO` se o estoque inicial for maior que 0, senão `ESGOTADO`                   | `Produto.cadastrar`                                    |
-| Saída que zera o saldo → `ESGOTADO`, e os vendedores são avisados                      | `Produto.baixarEstoque` + `AvisosAosVendedores`        |
-| Entrada em produto esgotado → `ATIVO`, e os vendedores são avisados                    | `Produto.acrescerEstoque` + `AvisosAosVendedores`      |
+| Produto tem status `DISPONIVEL`, `INDISPONIVEL` ou `DESCONTINUADO`                     | `model/StatusProduto`                                  |
+| Produto novo nasce `INDISPONIVEL`, com estoque 0                                       | `Produto.cadastrar`                                    |
+| Saída que zera o saldo → `INDISPONIVEL`, e os vendedores são avisados                  | `Produto.baixarEstoque` + `AvisosAosVendedores`        |
+| Entrada em produto indisponível → `DISPONIVEL`, e os vendedores são avisados           | `Produto.acrescerEstoque` + `AvisosAosVendedores`      |
 | Saída maior que o saldo, ou quantidade ≤ 0, é recusada                                 | `Produto.baixarEstoque` / `acrescerEstoque`            |
 | Produto descontinuado não é movimentado e não volta a ativo                            | `Produto.exigirMovimentavel` / `descontinuar`          |
 | Só o **Administrador** cadastra, edita, descontinua e exclui                           | `ProdutoService` (e `ProdutoController` para as telas) |
@@ -32,9 +32,9 @@ Junto com o código vão os **diagramas dinâmicos** desses fluxos: sequência, 
 
 ## Decisões de arquitetura
 
-**1. As regras de estado ficam no Model, na entidade.** `Produto` não tem `setStatus` nem `setQuantidade`. Os únicos jeitos de mudar o saldo são `acrescerEstoque` e `baixarEstoque`, e eles decidem o status. Assim, o diagrama de estados é exatamente o código, e nenhum Controller ou Service consegue deixar o produto `ATIVO` com saldo zero.
+**1. As regras de estado ficam no Model, na entidade.** `Produto` não tem `setStatus` nem `setQuantidade`. Os únicos jeitos de mudar o saldo são `acrescerEstoque` e `baixarEstoque`, e eles decidem o status. Assim, o diagrama de estados é exatamente o código, e nenhum Controller ou Service consegue deixar o produto `DISPONIVEL` com saldo zero.
 
-**2. O Service coordena, a entidade decide.** O `EstoqueService` checa o perfil, busca o produto, pede a movimentação, grava o registro e, conforme a `Transicao` devolvida (`ESGOTOU`, `VOLTOU_AO_ESTOQUE`), dispara o aviso. É a separação Controller → Service → Model da Aula 5, agora com o Model fazendo mais que guardar dados.
+**2. O Service coordena, a entidade decide.** O `EstoqueService` checa o perfil, busca o produto, pede a movimentação, grava o registro e, conforme a `Transicao` devolvida (`FICOU_INDISPONIVEL`, `FICOU_DISPONIVEL`), dispara o aviso. É a separação Controller → Service → Model da Aula 5, agora com o Model fazendo mais que guardar dados.
 
 **3. Movimentação é histórico, não só saldo.** Cada entrada ou saída vira uma linha em `Movimentacao`, com o saldo depois dela. Isso responde "quem tirou 10 canetas ontem?", algo que só o número do saldo não responde. Por isso um produto com histórico não pode ser excluído, só descontinuado.
 
@@ -44,12 +44,12 @@ Junto com o código vão os **diagramas dinâmicos** desses fluxos: sequência, 
 
 ## Os diagramas e o código andam juntos
 
-| Diagrama             | Responde                                                   | Conferido pelos testes                            |
-| -------------------- | ---------------------------------------------------------- | ------------------------------------------------- |
-| Sequência da entrada | Quem chama quem quando o produto esgotado volta ao estoque | `cicloCompletoAtivoEsgotadoAtivoDescontinuado`    |
-| Sequência da saída   | Saída que esgota e saída recusada por saldo                | `saidaMaiorQueOSaldoNaoAlteraNada`                |
-| Atividades da saída  | As 6 decisões até aceitar ou recusar                       | Um teste por losango em `EstoqueIntegrationTests` |
-| Estados do produto   | As setas permitidas e as proibidas                         | `ProdutoTest`, um teste por seta                  |
+| Diagrama             | Responde                                                     | Conferido pelos testes                                         |
+| -------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
+| Sequência da entrada | Quem chama quem quando o produto indisponível recebe estoque | `cicloCompletoIndisponivelDisponivelIndisponivelDescontinuado` |
+| Sequência da saída   | Saída que zera o saldo e saída recusada                      | `saidaMaiorQueOSaldoNaoAlteraNada`                             |
+| Atividades da saída  | As 6 decisões até aceitar ou recusar                         | Um teste por losango em `EstoqueIntegrationTests`              |
+| Estados do produto   | As setas permitidas e as proibidas                           | `ProdutoTest`, um teste por seta                               |
 
 ### Quando usar cada diagrama
 
@@ -66,14 +66,14 @@ Requisito: JDK 21 ou superior.
 ```powershell
 cd aula-6/mvc
 .\mvnw.cmd spring-boot:run      # http://localhost:8080
-.\mvnw.cmd test                 # 18 testes
+.\mvnw.cmd test                 # 19 testes
 ```
 
 Roteiro para demonstrar:
 
-1. No topo, troque o perfil para **Administrador** e cadastre "Caneta" com estoque inicial **0**. Ela aparece como **Esgotado**.
-2. Troque para **Time de Estoque**, vá em **Estoque** e registre uma **entrada** de 10. Ela fica **Ativo**, e aparece o aviso "voltou ao estoque" em Produtos.
-3. Registre uma **saída** de 10. Ela volta para **Esgotado**, com o aviso "esgotou".
+1. No topo, troque o perfil para **Administrador** e cadastre "Caneta". Ela nasce **Indisponível**, com estoque 0.
+2. Troque para **Time de Estoque**, vá em **Estoque** e registre uma **entrada** de 10. Ela fica **Disponível**, e aparece o aviso "está disponível" em Produtos.
+3. Registre uma **saída** de 10. Ela volta para **Indisponível**, com o aviso "ficou indisponível".
 4. Tente uma saída de 1: aparece "Estoque insuficiente".
 5. Como **Administrador**, clique em **Descontinuar**. O produto some da lista de movimentação.
 6. Como **Vendedor**, os botões de cadastro e estoque não aparecem, e acessar `/produtos/novo` direto devolve 403.

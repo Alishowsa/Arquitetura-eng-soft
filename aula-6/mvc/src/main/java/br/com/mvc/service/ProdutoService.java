@@ -47,18 +47,13 @@ public class ProdutoService {
     @Transactional
     public Produto salvar(Long id, ProdutoForm form, Perfil perfil) {
         exigirAdministrador(perfil, "cadastrar ou editar produtos");
-        validar(form, id == null);
+        validar(form);
         String nome = form.getNome().strip();
         String descricao =
             form.getDescricao() == null ? "" : form.getDescricao().strip();
         if (id == null) {
             return repository.save(
-                Produto.cadastrar(
-                    nome,
-                    descricao,
-                    form.getPreco(),
-                    form.getQuantidade()
-                )
+                Produto.cadastrar(nome, descricao, form.getPreco())
             );
         }
         Produto produto = buscar(id);
@@ -95,7 +90,7 @@ public class ProdutoService {
         }
     }
 
-    private void validar(ProdutoForm form, boolean cadastro) {
+    private void validar(ProdutoForm form) {
         if (
             form.getNome() == null ||
             form.getNome().isBlank() ||
@@ -118,14 +113,6 @@ public class ProdutoService {
         ) {
             throw new IllegalArgumentException(
                 "Informe um preço positivo, de até 9.999.999.999,99, com no máximo duas casas decimais."
-            );
-        }
-        if (
-            cadastro &&
-            (form.getQuantidade() == null || form.getQuantidade() < 0)
-        ) {
-            throw new IllegalArgumentException(
-                "Informe um estoque inicial inteiro maior ou igual a zero."
             );
         }
     }

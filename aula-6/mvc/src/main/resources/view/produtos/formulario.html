@@ -62,22 +62,10 @@
               step="0.01"
             />
           </div>
-          <div th:if="${produtoId == null}">
-            <label for="quantidade">Estoque inicial *</label
-            ><input
-              id="quantidade"
-              type="number"
-              th:field="*{quantidade}"
-              required
-              min="0"
-              max="2147483647"
-              step="1"
-            />
-            <small
-              >Com estoque 0 o produto nasce Esgotado. Depois, o saldo só muda
-              pela tela de Estoque.</small
-            >
-          </div>
+          <p th:if="${produtoId == null}">
+            O produto nasce <strong>Indisponível</strong>, com estoque 0. O
+            saldo entra pela tela de <a th:href="@{/estoque}">Estoque</a>.
+          </p>
           <p th:if="${produtoId != null}">
             Saldo atual: <strong th:text="${saldoAtual}"></strong> un. Para
             alterar, registre uma entrada ou saída em

@@ -30,9 +30,8 @@ Acesse <http://localhost:8080/produtos>. Instruções, estrutura das camadas e t
 
 | Aula | Pasta                                         | Porta                            | Testes |
 | ---- | --------------------------------------------- | -------------------------------- | ------ |
-| 6    | `aula-6/mvc`                                  | <http://localhost:8080/produtos> | 18     |
+| 6    | `aula-6/mvc`                                  | <http://localhost:8080/produtos> | 19     |
 | 7    | `aula-7/hub-faturamento`                      | <http://127.0.0.1:8090/faturas>  | 23     |
-| 8    | `aula-8/mvc` (precisa do hub da aula 7 no ar) | <http://localhost:8080/pedidos>  | 26     |
+| 8    | `aula-8/mvc` (precisa do hub da aula 7 no ar) | <http://localhost:8080/pedidos>  | 27     |
 
 Em cada pasta: `.\mvnw.cmd spring-boot:run` para subir e `.\mvnw.cmd test` para testar. As aulas 6 e 8 usam a mesma porta 8080, então suba uma de cada vez. O roteiro completo da integração está no [README da aula 8](aula-8/README.md).
-
