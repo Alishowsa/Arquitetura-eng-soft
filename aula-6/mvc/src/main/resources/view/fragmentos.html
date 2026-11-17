@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <header th:fragment="cabecalho(secao, titulo)">
+      <div class="barra">
+        <nav aria-label="Seções">
+          <a
+            th:href="@{/produtos}"
+            th:classappend="${secao == 'produtos'} ? 'ativo'"
+            >Produtos</a
+          >
+          <a
+            th:href="@{/estoque}"
+            th:classappend="${secao == 'estoque'} ? 'ativo'"
+            >Estoque</a
+          >
+        </nav>
+        <form class="perfil" method="post" th:action="@{/perfil}">
+          <label for="perfil">Perfil</label>
+          <select id="perfil" name="perfil" onchange="this.form.submit()">
+            <option
+              th:each="p : ${perfis}"
+              th:value="${p}"
+              th:text="${p.rotulo}"
+              th:selected="${p == perfilAtual}"
+            ></option>
+          </select>
+          <input
+            type="hidden"
+            name="voltarPara"
+            th:value="${secao == 'estoque'} ? '/estoque' : '/produtos'"
+          />
+          <noscript><button type="submit">Trocar</button></noscript>
+        </form>
+      </div>
+      <p>ARQUITETURA DE SOFTWARE · AULA 6</p>
+      <h1 th:text="${titulo}">Vendas e estoque</h1>
+    </header>
+
+    <footer th:fragment="rodape">Vendas e estoque · Spring MVC</footer>
+  </body>
+</html>

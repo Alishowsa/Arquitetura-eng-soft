@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estoque • Vendas e estoque</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header
+      th:replace="~{fragmentos :: cabecalho('estoque', 'Controle de estoque')}"
+    ></header>
+    <main>
+      <p
+        class="sucesso"
+        role="status"
+        th:if="${mensagem}"
+        th:text="${mensagem}"
+      ></p>
+      <p class="erro" role="alert" th:if="${erro}" th:text="${erro}"></p>
+
+      <section th:if="${perfilAtual.podeMovimentarEstoque()}">
+        <h2>Registrar movimentação</h2>
+        <p th:if="${#lists.isEmpty(produtos)}">
+          Nenhum produto disponível para movimentar.
+        </p>
+        <form
+          class="cadastro"
+          method="post"
+          th:action="@{/estoque}"
+          th:unless="${#lists.isEmpty(produtos)}"
+        >
+          <div>
+            <label for="produtoId">Produto *</label>
+            <select id="produtoId" name="produtoId" required>
+              <option
+                th:each="p : ${produtos}"
+                th:value="${p.id}"
+                th:text="|${p.nome} · saldo ${p.quantidade} · ${p.status.rotulo}|"
+              ></option>
+            </select>
+          </div>
+          <div>
+            <label for="quantidade">Quantidade *</label>
+            <input
+              id="quantidade"
+              name="quantidade"
+              type="number"
+              min="1"
+              step="1"
+              required
+            />
+          </div>
+          <div>
+            <label for="motivo">Motivo</label>
+            <input
+              id="motivo"
+              name="motivo"
+              maxlength="200"
+              placeholder="Ex.: nota do fornecedor 1234, avaria"
+            />
+          </div>
+          <div class="acoes">
+            <button type="submit" name="tipo" value="ENTRADA">
+              Registrar entrada
+            </button>
+            <button class="excluir" type="submit" name="tipo" value="SAIDA">
+              Registrar saída
+            </button>
+          </div>
+        </form>
+      </section>
+      <p class="info" th:unless="${perfilAtual.podeMovimentarEstoque()}">
+        O perfil <strong th:text="${perfilAtual.rotulo}"></strong> só consulta o
+        estoque. Troque para Time de Estoque ou Administrador para registrar
+        entradas e saídas.
+      </p>
+
+      <section>
+        <h2>Últimas movimentações</h2>
+        <p th:if="${#lists.isEmpty(historico)}">
+          Nenhuma movimentação registrada.
+        </p>
+        <div class="tabela" th:unless="${#lists.isEmpty(historico)}">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Quando</th>
+                <th scope="col">Produto</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Qtd.</th>
+                <th scope="col">Saldo após</th>
+                <th scope="col">Perfil</th>
+                <th scope="col">Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="m : ${historico}">
+                <td
+                  th:text="${#temporals.format(m.registradaEm, 'dd/MM/yyyy HH:mm')}"
+                ></td>
+                <td th:text="${m.produto.nome}"></td>
+                <td th:text="${m.tipo.rotulo}"></td>
+                <td th:text="${m.quantidade}"></td>
+                <td th:text="${m.saldoApos}"></td>
+                <td th:text="${m.perfil.rotulo}"></td>
+                <td th:text="${m.motivo}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
+  </body>
+</html>

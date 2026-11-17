@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pedidos • Vendas e estoque</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header
+      th:replace="~{fragmentos :: cabecalho('pedidos', 'Pedidos de venda')}"
+    ></header>
+    <main>
+      <p
+        class="sucesso"
+        role="status"
+        th:if="${mensagem}"
+        th:text="${mensagem}"
+      ></p>
+      <p class="erro" role="alert" th:if="${erro}" th:text="${erro}"></p>
+
+      <section th:if="${perfilAtual.podeVender()}">
+        <h2>Abrir pedido</h2>
+        <form class="cadastro" method="post" th:action="@{/pedidos}">
+          <div>
+            <label for="nome">Cliente *</label>
+            <input
+              id="nome"
+              name="nome"
+              th:value="${nome}"
+              maxlength="120"
+              required
+            />
+          </div>
+          <div>
+            <label for="email">E-mail *</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              th:value="${email}"
+              maxlength="120"
+              required
+            />
+          </div>
+          <div>
+            <label for="documento">CPF ou CNPJ *</label>
+            <input
+              id="documento"
+              name="documento"
+              th:value="${documento}"
+              maxlength="18"
+              required
+            />
+          </div>
+          <div class="acoes"><button type="submit">Abrir pedido</button></div>
+        </form>
+      </section>
+      <p class="info" th:unless="${perfilAtual.podeVender()}">
+        O perfil <strong th:text="${perfilAtual.rotulo}"></strong> só consulta
+        pedidos. Troque para Vendedor ou Administrador para vender.
+      </p>
+
+      <section>
+        <h2>Pedidos</h2>
+        <p th:if="${#lists.isEmpty(pedidos)}">Nenhum pedido registrado.</p>
+        <div class="tabela" th:unless="${#lists.isEmpty(pedidos)}">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Nº</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Total</th>
+                <th scope="col">Status</th>
+                <th scope="col">Fatura</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="p : ${pedidos}">
+                <td>
+                  <a
+                    th:href="@{/pedidos/{id}(id=${p.id})}"
+                    th:text="|#${p.id}|"
+                  ></a>
+                </td>
+                <td th:text="${p.clienteNome}"></td>
+                <td
+                  class="preco"
+                  th:text="|R$ ${#numbers.formatDecimal(p.total, 1, 'POINT', 2, 'COMMA')}|"
+                ></td>
+                <td>
+                  <span
+                    class="status"
+                    th:classappend="${#strings.toLowerCase(p.status.name())}"
+                    th:text="${p.status.rotulo}"
+                  ></span>
+                </td>
+                <td th:text="${p.faturaId}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
+  </body>
+</html>

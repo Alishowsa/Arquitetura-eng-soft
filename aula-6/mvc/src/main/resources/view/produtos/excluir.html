@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Excluir produto</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header
+      th:replace="~{fragmentos :: cabecalho('produtos', 'Excluir produto')}"
+    ></header>
+    <main>
+      <section>
+        <p>Deseja excluir <strong th:text="${produto.nome}"></strong>?</p>
+        <p>
+          Só é possível excluir produtos sem movimentação de estoque. Para um
+          produto com histórico, use
+          <em>Descontinuar</em>.
+        </p>
+        <form
+          method="post"
+          th:action="@{/produtos/{id}/excluir(id=${produto.id})}"
+        >
+          <button class="excluir" type="submit">Confirmar exclusão</button
+          ><a th:href="@{/produtos}">Cancelar</a>
+        </form>
+      </section>
+    </main>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Operação não permitida</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header
+      th:replace="~{fragmentos :: cabecalho('produtos', 'Operação não permitida')}"
+    ></header>
+    <main>
+      <section>
+        <p class="erro" th:text="${motivo}"></p>
+        <p>
+          Perfil atual: <strong th:text="${perfilAtual.rotulo}"></strong>.
+          Troque o perfil no topo da página.
+        </p>
+        <a th:href="@{/produtos}">Voltar aos produtos</a>
+      </section>
+    </main>
+  </body>
+</html>

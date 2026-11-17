@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Produtos • Vendas e estoque</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header
+      th:replace="~{fragmentos :: cabecalho('produtos', 'Produtos')}"
+    ></header>
+    <main>
+      <p
+        class="sucesso"
+        role="status"
+        th:if="${mensagem}"
+        th:text="${mensagem}"
+      ></p>
+      <p class="erro" role="alert" th:if="${erro}" th:text="${erro}"></p>
+
+      <section class="avisos" th:unless="${#lists.isEmpty(avisos)}">
+        <h2>Avisos aos vendedores</h2>
+        <ul>
+          <li th:each="aviso : ${avisos}" th:text="${aviso}"></li>
+        </ul>
+      </section>
+
+      <p th:if="${perfilAtual.podeCadastrarProdutos()}">
+        <a class="botao" th:href="@{/produtos/novo}">Cadastrar produto</a>
+      </p>
+
+      <section>
+        <h2>Produtos cadastrados</h2>
+        <p th:if="${#lists.isEmpty(produtos)}">
+          Nenhum produto cadastrado. O Administrador pode cadastrar o primeiro.
+        </p>
+        <div class="tabela" th:unless="${#lists.isEmpty(produtos)}">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Preço</th>
+                <th scope="col">Estoque</th>
+                <th scope="col">Status</th>
+                <th scope="col" th:if="${perfilAtual.podeCadastrarProdutos()}">
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="produto : ${produtos}">
+                <td th:text="${produto.nome}"></td>
+                <td th:text="${produto.descricao}"></td>
+                <td
+                  class="preco"
+                  th:text="|R$ ${#numbers.formatDecimal(produto.preco, 1, 'POINT', 2, 'COMMA')}|"
+                ></td>
+                <td th:text="${produto.quantidade}"></td>
+                <td>
+                  <span
+                    class="status"
+                    th:classappend="${#strings.toLowerCase(produto.status.name())}"
+                    th:text="${produto.status.rotulo}"
+                  ></span>
+                </td>
+                <td
+                  th:if="${perfilAtual.podeCadastrarProdutos()}"
+                  class="acoes-linha"
+                >
+                  <a
+                    th:href="@{/produtos/{id}/editar(id=${produto.id})}"
+                    th:aria-label="|Editar ${produto.nome}|"
+                    >Editar</a
+                  >
+                  <form
+                    th:unless="${produto.descontinuado}"
+                    method="post"
+                    th:action="@{/produtos/{id}/descontinuar(id=${produto.id})}"
+                  >
+                    <button
+                      class="link perigo"
+                      type="submit"
+                      th:aria-label="|Descontinuar ${produto.nome}|"
+                    >
+                      Descontinuar
+                    </button>
+                  </form>
+                  <a
+                    class="perigo"
+                    th:href="@{/produtos/{id}/excluir(id=${produto.id})}"
+                    th:aria-label="|Excluir ${produto.nome}|"
+                    >Excluir</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
+  </body>
+</html>

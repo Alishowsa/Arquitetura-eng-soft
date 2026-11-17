@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="|Pedido #${pedido.id}|">Pedido</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header
+      th:replace="~{fragmentos :: cabecalho('pedidos', |Pedido #${pedido.id}|)}"
+    ></header>
+    <main>
+      <p
+        class="sucesso"
+        role="status"
+        th:if="${mensagem}"
+        th:text="${mensagem}"
+      ></p>
+      <p class="erro" role="alert" th:if="${erro}" th:text="${erro}"></p>
+
+      <section>
+        <h2>Situação</h2>
+        <p>
+          <span
+            class="status"
+            th:classappend="${#strings.toLowerCase(pedido.status.name())}"
+            th:text="${pedido.status.rotulo}"
+          ></span>
+        </p>
+        <p>
+          Cliente: <strong th:text="${pedido.clienteNome}"></strong> ·
+          <span th:text="${pedido.clienteEmail}"></span> · documento
+          <span th:text="${pedido.clienteDocumento}"></span>
+        </p>
+        <p th:if="${pedido.faturaId != null}">
+          Fatura no hub: <strong th:text="|nº ${pedido.faturaId}|"></strong> ·
+          <a
+            th:href="|${urlDoHub}/faturas/${pedido.faturaId}|"
+            target="_blank"
+            rel="noopener"
+            >ver no hub</a
+          >
+        </p>
+        <div th:if="${pedido.podeReenviarAoHub()}">
+          <p class="erro">
+            O estoque já foi baixado, mas a fatura não foi criada. Último erro:
+            <span th:text="${pedido.erroFaturamento}"></span>
+            (<span th:text="${pedido.tentativasDeFaturamento}"></span>
+            tentativa(s)).
+          </p>
+          <form
+            method="post"
+            th:action="@{/pedidos/{id}/reenviar(id=${pedido.id})}"
+            th:if="${perfilAtual.podeVender()}"
+          >
+            <button type="submit">Reenviar ao hub</button>
+          </form>
+        </div>
+      </section>
+
+      <section>
+        <h2>Itens</h2>
+        <p th:if="${#lists.isEmpty(pedido.itens)}">Nenhum item ainda.</p>
+        <div class="tabela" th:unless="${#lists.isEmpty(pedido.itens)}">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Produto</th>
+                <th scope="col">Qtd.</th>
+                <th scope="col">Preço</th>
+                <th scope="col">Subtotal</th>
+                <th
+                  scope="col"
+                  th:if="${aberto and perfilAtual.podeVender()}"
+                ></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="item : ${pedido.itens}">
+                <td th:text="${item.descricao}"></td>
+                <td th:text="${item.quantidade}"></td>
+                <td
+                  class="preco"
+                  th:text="|R$ ${#numbers.formatDecimal(item.precoUnitario, 1, 'POINT', 2, 'COMMA')}|"
+                ></td>
+                <td
+                  class="preco"
+                  th:text="|R$ ${#numbers.formatDecimal(item.subtotal, 1, 'POINT', 2, 'COMMA')}|"
+                ></td>
+                <td th:if="${aberto and perfilAtual.podeVender()}">
+                  <form
+                    method="post"
+                    th:action="@{/pedidos/{id}/itens/{item}/remover(id=${pedido.id},item=${item.id})}"
+                  >
+                    <button class="link perigo" type="submit">Remover</button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Total:
+          <strong
+            th:text="|R$ ${#numbers.formatDecimal(pedido.total, 1, 'POINT', 2, 'COMMA')}|"
+          ></strong>
+        </p>
+
+        <form
+          class="cadastro"
+          method="post"
+          th:action="@{/pedidos/{id}/itens(id=${pedido.id})}"
+          th:if="${aberto and perfilAtual.podeVender()}"
+        >
+          <div>
+            <label for="produtoId">Produto</label>
+            <select id="produtoId" name="produtoId" required>
+              <option
+                th:each="p : ${produtos}"
+                th:value="${p.id}"
+                th:text="|${p.nome} · R$ ${#numbers.formatDecimal(p.preco, 1, 'POINT', 2, 'COMMA')} · saldo ${p.quantidade}|"
+              ></option>
+            </select>
+          </div>
+          <div>
+            <label for="quantidade">Quantidade</label>
+            <input
+              id="quantidade"
+              name="quantidade"
+              type="number"
+              min="1"
+              step="1"
+              value="1"
+              required
+            />
+          </div>
+          <div class="acoes"><button type="submit">Adicionar item</button></div>
+        </form>
+
+        <form
+          method="post"
+          th:action="@{/pedidos/{id}/fechar(id=${pedido.id})}"
+          th:if="${aberto and perfilAtual.podeVender() and not #lists.isEmpty(pedido.itens)}"
+        >
+          <p>Fechar baixa o estoque e envia o pedido ao hub de faturamento.</p>
+          <button type="submit">Fechar pedido</button>
+        </form>
+      </section>
+      <p><a th:href="@{/pedidos}">Voltar aos pedidos</a></p>
+    </main>
+    <footer th:replace="~{fragmentos :: rodape}"></footer>
+  </body>
+</html>
